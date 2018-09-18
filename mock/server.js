@@ -6,7 +6,7 @@ var Mock = require('mockjs')
 //         // 属性 id 是一个自增数，起始值为 1，每次增 1
 //         'id|+4': 1
 //     }],
-//     'name|5-8': 'test',
+//     'name|5-8': 'demo_test',
 //     name: {
 //         first: '@FIRST',
 //         middle: '@FIRST',

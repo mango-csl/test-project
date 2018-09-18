@@ -1,4 +1,4 @@
-function test({timeout}) {
+function demo_test({timeout}) {
     let twemp = {timeout};
     let twemp2 = {...twemp};
     twemp.timeout = '456';
@@ -7,4 +7,4 @@ function test({timeout}) {
     console.log('twemp2', twemp2);
 }
 
-test({timeout: 123123, name: '12313'});
+demo_test({timeout: 123123, name: '12313'});

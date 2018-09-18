@@ -1,6 +1,6 @@
 var express = require('express');
 var app = express();
-app.get('/test', function (req, res) {
+app.get('/demo_test', function (req, res) {
 res.redirect('./index.html');
 //res.redirect('www.baidu.com');
 //     res.redirect('index', 'index.html');

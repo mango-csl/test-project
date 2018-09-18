@@ -2,7 +2,7 @@ const {HttpOnError, Message, creatAxios} = require('./config');
 
 const {djcpsPromise} = require('./djpromise');
 
-function WmsHttpService(options) {
+function HttpService(options) {
     /**
      * 请求配置
      * @type {{service: string, onError: HttpOnError}}
@@ -27,38 +27,59 @@ function WmsHttpService(options) {
      * 创建axios
      * @type {Promise<any>}
      */
-    let axios = function (postConfig) {
+    let axios = function (axiosConfig) {
         return new Promise((resolve) => {
             setTimeout(() => {
-                resolve('已创建的axios -- postConfig:' + postConfig);
-            }, 1000);
+                resolve('---------------------查询返回数据------------------');
+                console.log('postConfig = ', axiosConfig);
+            }, 2000);
         });
     };
     return {
         wmsService: function (postConfig = {}) {
-            return djcpsPromise(axios(postConfig), postConfig);
+            return new djcpsPromise(axios('axiosConfig'), postConfig);
         }
     }
 }
 
-let wmsHttpService = WmsHttpService('create');
+let wmsHttpService = HttpService('create');
 
 let getData = wmsHttpService.wmsService({
+    url:'testQuery',
+    param:{
+      name:'param1'
+    },
+    onResponse: (msg) => {
+        console.log('customOnResponse -----  msg = ', msg);
+    },
+    onError: (error) => {
+        console.log('customOnError -----  error = ', error);
+    },
     requestControl: {
-        pengdingLinit: false
+        pengdingLinit: true
     }
 });
 
 // getData.cancel();
 let index = 0;
 let count = 0;
-let query = getData.throttle(1000).toPromise;
+// let query = getData.toPromise;
+// let runQuery = function () {
+//     return query().then((res) => {
+//         console.log('getData.topromise():', res, '--index', index);
+//         index++;
+//     });
+// };
+
+
+function query(index) {
+    getData.toPromise.then((res) => {
+        console.log('getData.toPromise():', res, '--index = ', index);
+    });
+}
+
 setInterval(() => {
     console.log('执行次数 = ', count);
-    query().then((res) => {
-        console.log('getData.toPromise():', res, '--index = ', index);
-        index++;
-    });
+    query(count);
     count++;
-}, 500)
-
+}, 1000);

@@ -43,8 +43,8 @@ const subject = (function () {
     Object.defineProperties(obj, {
         name: {
             get() {
-                console.log('test');
-                return 'test';
+                console.log('demo_test');
+                return 'demo_test';
             }
         }
     })
@@ -55,11 +55,11 @@ const subject = (function () {
 
 let sub1 = new subject();
 let sub2 = new subject();
-sub1.listen('test', () => {
-    console.log('test -----------------');
+sub1.listen('demo_test', () => {
+    console.log('demo_test -----------------');
 });
-sub2.trigger('test');
-sub2.hasListen('test');
-sub1.trigger('test');
+sub2.trigger('demo_test');
+sub2.hasListen('demo_test');
+sub1.trigger('demo_test');
 sub2.name;
 sub1.name;

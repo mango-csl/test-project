@@ -2,17 +2,64 @@ const {
     defaultOnError,
     defaultMessage,
     defaultOnResponse,
-    throttle: _throttle
+    // throttle: _throttle
 } = require('./config');
 
-// let _throttle = function (fn) {
-//     setTimeout(()=>{
-//         fn();
-//     },1000)
-// }
+/**
+ *
+ * @param fn {Function}   实际要执行的函数
+ * @param delay {Number}  执行间隔，单位是毫秒（ms）
+ *
+ * @return {Function}     返回一个“节流”函数
+ */
+
+function _throttle(fn, delay) {
+
+    // 记录上次执行的时间
+    let last;
+
+    // 定时器
+    let timer;
+
+    // 默认间隔为 250ms
+    delay || (delay = 250);
+
+    // 返回的函数，每过 delay 毫秒就执行一次 fn 函数
+    return function () {
+
+        // 保存函数调用时的上下文和参数，传递给 fn
+        let context = this;
+        let args = arguments;
+
+        let now = +new Date();
+
+        // 如果距离上次执行 fn 函数的时间小于 delay，那么就放弃
+        // 执行 fn，并重新计时
+        if (last && now < last + delay) {
+            clearTimeout(timer);
+
+            // 保证在当前时间区间结束后，再执行一次 fn
+            timer = setTimeout(function () {
+                last = now;
+                fn.apply(context, args)
+            }, delay)
+
+            // 在时间区间的最开始和到达指定间隔的时候执行一次 fn
+        } else {
+            last = now;
+            fn.apply(context, args)
+        }
+    }
+}
+
 /**
  * 自定义链式请求的构造函数
- * @constructor 私有
+ * @param promise
+ * @param onResponse
+ * @param onError
+ * @param afterRequest
+ * @param requestControl
+ * @returns {*}
  */
 const makeCancelable = (promise, {
     onResponse, onError, afterRequest = () => {
@@ -24,63 +71,67 @@ const makeCancelable = (promise, {
         status = 'initial', // 请求
         isThrottle = false,// 手动取消标识
         throttleTime = 1000;
-    const wrappedPromise = new Promise((resolve, reject) => {
-        // status = 'pending';
-        let callBack = function ({value, type}) {
-            status = type;
-            afterRequest();
-            type === 'resolve' ? resolve(value) : reject(value);
-        };
-        promise.then(
-            val => {
-                let {type, value = val} = this;
-                if (hasCanceled_) {
-                    type = 'reject';
-                    _value = {isCanceled: true};
-                } else {
-                    type = 'resolve'
-                }
-                callBack({type, value});
-            },
-            error => {
-                let value = hasCanceled_ ? {isCanceled: true} : error;
-                callBack({type: 'reject', value});
-            }
-        );
-    });
 
-    const throttlePromise = function () {
+    const debouncePromise = (function () {
         if (requestControl.pengdingLinit) {
             if (status === 'pending') {
-                return new Promise((resolve, reject) => {
-                    resolve('请求拦截，在pending状态无法发送请求');
-                });
+                return function () {
+                    return new Promise((resolve, reject) => {
+                        resolve('请求拦截，在pending状态无法发送请求');
+                    });
+                }
             }
         }
         status = 'pending';
-        return wrappedPromise
-    };
+        // return wrappedPromise;
+        return function () {
+            return new Promise((resolve, reject) => {
+                // status = 'pending';
+                let callBack = function ({value, type}) {
+                    status = type;
+                    afterRequest();
+                    type === 'resolve' ? resolve(value) : reject(value);
+                };
+                promise.then(
+                    val => {
+                        let {type} = this;
+                        if (hasCanceled_) {
+                            type = 'reject';
+                            _value = {isCanceled: true};
+                        } else {
+                            type = 'resolve'
+                        }
+                        callBack({type, val});
+                    },
+                    error => {
+                        let value = hasCanceled_ ? {isCanceled: true} : error;
+                        callBack({type: 'reject', value});
+                    }
+                );
+            });
+        };
+    })();
     /**
      * 添加错误处理
      */
     new Foo(promise, {onResponse, onError});
 
     return {
-        toPromise: throttlePromise,
+        toPromise: new debouncePromise(),
         get status() {
             return status;
         },
         cancel() {
             hasCanceled_ = true;
-        },
-        throttle(time) {
-            throttleTime = Number(time);
-            if (!isThrottle) {
-                isThrottle = true;
-            }
-            this.toPromise = _throttle(throttlePromise, throttleTime);
-            return this;
         }
+        // throttle(time) {
+        //     throttleTime = Number(time);
+        //     if (!isThrottle) {
+        //         isThrottle = true;
+        //     }
+        //     this.toPromise = _throttle(debouncePromise, throttleTime);
+        //     return this;
+        // }
     };
 };
 
@@ -165,4 +216,4 @@ class Foo {
 
 module.exports = {
     djcpsPromise: makeCancelable
-}
+};
