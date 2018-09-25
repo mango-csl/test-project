@@ -1,6 +1,7 @@
 let obj = {};
 const subject = (function () {
-    let Subject = function () {
+    let Subject = function (msg) {
+        console.log('msg = ',msg);
         let list = {};
         this.listen = function (key, fn) {
             if (!list[key]) {
@@ -39,7 +40,7 @@ const subject = (function () {
         };
 
     };
-    console.log('init_obj');
+
     Object.defineProperties(obj, {
         name: {
             get() {
@@ -48,13 +49,13 @@ const subject = (function () {
             }
         }
     })
-    return function () {
-        return new Subject();
+    return function (msg) {
+        return new Subject(msg);
     };
 })();
 
-let sub1 = new subject();
-let sub2 = new subject();
+let sub1 = new subject('sub1');
+let sub2 = new subject('sub2');
 sub1.listen('demo_test', () => {
     console.log('demo_test -----------------');
 });

@@ -4,7 +4,7 @@
   "description": "experiment",
   "main": "src/index.js",
   "scripts": {
-    "test": "mocha test/specs --require=test/globals.js",
+    "test": "mocha test/specs/pending.test_2 --require=test/globals.js",
     "test-lib": "TEST_LIB=1 npm t"
   },
   "author": "csl <453826887@qq.com>",
@@ -29,5 +29,10 @@
     "jsdoc-to-markdown": "^3.0.0",
     "lint-staged": "^4.0.3",
     "mocha": "^3.5.0"
+  },
+  "dependencies": {
+    "express": "^4.16.3",
+    "http-proxy-middleware": "^0.19.0",
+    "opn": "^5.3.0"
   }
 }

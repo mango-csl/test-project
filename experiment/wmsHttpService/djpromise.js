@@ -64,51 +64,47 @@ function _throttle(fn, delay) {
 const makeCancelable = (promise, {
     onResponse, onError, afterRequest = () => {
     }, requestControl = {
-        pengdingLinit: true
+        pengdingLint: true
     }
 } = {}) => {
     let hasCanceled_ = false, // 手动取消标识
-        status = 'initial', // 请求
-        isThrottle = false,// 手动取消标识
-        throttleTime = 1000;
-
+        status = 'initial'; // 请求状态
+    let _promise;
     const debouncePromise = (function () {
-        if (requestControl.pengdingLinit) {
-            if (status === 'pending') {
-                return function () {
-                    return new Promise((resolve, reject) => {
-                        resolve('请求拦截，在pending状态无法发送请求');
-                    });
-                }
+        status = 'pending';
+        if (requestControl.pengdingLint) {
+            const needReset = [
+                status !== 'pending' && status !== 'initial'
+            ].some(Boolean);
+            if (needReset) {
+                _promise = new Promise((resolve, reject) => {
+                    // status = 'pending';
+                    let callBack = function ({value, type}) {
+                        status = type;
+                        afterRequest();
+                        type === 'resolve' ? resolve(value) : reject(value);
+                    };
+                    promise.then(
+                        val => {
+                            let {type} = this;
+                            if (hasCanceled_) {
+                                type = 'reject';
+                                _value = {isCanceled: true};
+                            } else {
+                                type = 'resolve'
+                            }
+                            callBack({type, val});
+                        },
+                        error => {
+                            let value = hasCanceled_ ? {isCanceled: true} : error;
+                            callBack({type: 'reject', value});
+                        }
+                    );
+                });
             }
         }
-        status = 'pending';
-        // return wrappedPromise;
         return function () {
-            return new Promise((resolve, reject) => {
-                // status = 'pending';
-                let callBack = function ({value, type}) {
-                    status = type;
-                    afterRequest();
-                    type === 'resolve' ? resolve(value) : reject(value);
-                };
-                promise.then(
-                    val => {
-                        let {type} = this;
-                        if (hasCanceled_) {
-                            type = 'reject';
-                            _value = {isCanceled: true};
-                        } else {
-                            type = 'resolve'
-                        }
-                        callBack({type, val});
-                    },
-                    error => {
-                        let value = hasCanceled_ ? {isCanceled: true} : error;
-                        callBack({type: 'reject', value});
-                    }
-                );
-            });
+            return _promise;
         };
     })();
     /**
@@ -124,14 +120,6 @@ const makeCancelable = (promise, {
         cancel() {
             hasCanceled_ = true;
         }
-        // throttle(time) {
-        //     throttleTime = Number(time);
-        //     if (!isThrottle) {
-        //         isThrottle = true;
-        //     }
-        //     this.toPromise = _throttle(debouncePromise, throttleTime);
-        //     return this;
-        // }
     };
 };
 
