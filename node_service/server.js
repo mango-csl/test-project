@@ -33,6 +33,20 @@ app.post('/user', function (req, res) {
 });
 
 app.post('/test', function (req, res) {
+    setTimeout(() => {
+        res.end({
+            "msg":"操作成功",
+            "code":800000,
+            "data":  {
+                name:'sam',
+                age:11
+            },
+            "success":true
+        });
+    }, 1000);
+    // res.end(data);
+});
+app.get('/getTest', function (req, res) {
     let data = 'server data';
     setTimeout(() => {
         console.log(data);

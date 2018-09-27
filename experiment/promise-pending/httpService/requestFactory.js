@@ -6,22 +6,32 @@ const {
     defaultRequestCall,
     defaultMessage
 } = require('../wrappedPromise/config');
-const axios = require('axios');
-var CancelToken = axios.CancelToken;
 
 let SERVICE_PROXY = '/djwmsservice/';
+
+let DEFAULT_CONFIG = {
+    url: 'empty',
+    param: {},
+    service: '',
+    resolved: function (data) {
+        console.log('url:', config.url, '--- Resolved :', data);
+    },
+    rejected: function (response) {
+        console.log('url:', config.url, '--- Rejected :', response);
+    },
+};
 
 /**
  * 构建统一回调处理模块
  * @param config
  * @returns {Function}
  */
-let onFulfilledFactory = function ({onResponse, onError, message, requestCall} = {
-    onResponse: defaultOnResponse,
-    onError: defaultOnError,
-    message: defaultMessage,
-    requestCall: defaultRequestCall
-}) {
+let onFulfilledFactory = function ({
+                                       onResponse = defaultOnResponse,
+                                       onError = defaultOnError,
+                                       message = defaultMessage,
+                                       requestCall = defaultRequestCall
+                                   }) {
     let _onFulfilled = function ({resolved, rejected, url}) {
         let count = 0;
         return function (res) {
@@ -35,7 +45,7 @@ let onFulfilledFactory = function ({onResponse, onError, message, requestCall} =
                 let {result, callBackData} = requestCall(res.value);
                 if (result) {
                     let _msg = onResponse(res.value);
-                    if(_msg) message.info(_msg);
+                    if (_msg) message.info(_msg);
                     resolved(callBackData);
                 } else {
                     message.error(callBackData);
@@ -67,40 +77,63 @@ let onFulfilledFactory = function ({onResponse, onError, message, requestCall} =
  * @returns {{post: *, get: *, cancel: cancel}}
  * @constructor
  */
-let RequestFactory = function ({url, param}, wrapped) {
-    // cancel request,modify request status to reject
-    let cancelAxios;
-    let _axios = createAxios({
-        cancelToken: new CancelToken(function (cancel) {
-            cancelAxios = cancel;
-        })
-    });
+let RequestFactory = function (onFulfilledConfig) {
+    let requestConfig = Object.assign(DEFAULT_CONFIG, {service: onFulfilledConfig.service || SERVICE_PROXY});
+
+    let onFulfilled = new onFulfilledFactory(onFulfilledConfig);
+
+    let _axios = createAxios();
+
+    let postFactory = function (postConfig = {}, axiosConfig = {}) {
+        postConfig = Object.assign(requestConfig, postConfig);
+        let {url, param, resolved, rejected, service} = postConfig;
+        let realUrl = service + url;
+        let wrapped = new Pending({
+            autoReset: 'fulfilled'
+        });
+        wrapped.onFulfilled = onFulfilled({url: realUrl, resolved, rejected});
+        return function (postConfig = {}, axiosConfig = {}) {
+            return wrapped.call(function () {
+                return _axios.post(realUrl, param, axiosConfig);
+            }).catch((error) => {
+                // console.log(error.response.data);
+            });
+        }
+    };
     return {
-        post: (function ({url, param}) {
-            return function () {
-                return wrapped.call(function () {
-                    return _axios.post(url, param);
-                }).catch((error) => {
-                    // console.log(error.response.data);
+        post: function (postConfig = {}, axiosConfig = {}) {
+            return (function (postConfig,axiosConfig) {
+                postConfig = Object.assign(requestConfig, postConfig);
+                let {url, param, resolved, rejected, service} = postConfig;
+                let realUrl = service + url;
+                let wrapped = new Pending({
+                    autoReset: 'fulfilled'
                 });
-            }
-        })({url, param}),
-        get: (function ({url}) {
-            return function () {
-                return wrapped.call(function () {
-                    return _axios.get(url);
-                }).catch((error) => {
-                    // console.log(error.response.data);
-                });
-            }
-        })({url}),
-        cancel: function (msg) {
-            if (typeof cancelAxios === 'function') {
-                return cancelAxios(msg);
-            }
-            return function () {
-                console.log('cancel error');
-            }
+                wrapped.onFulfilled = onFulfilled({url: realUrl, resolved, rejected});
+                return function () {
+                    return wrapped.call(function () {
+                        return _axios.post(realUrl, param, axiosConfig);
+                    }).catch((error) => {
+                        // console.log(error.response.data);
+                    });
+                }
+            })(postConfig,axiosConfig)
+        },
+        get: function (getConfig = {}, axiosConfig = {}) {
+            getConfig = Object.assign(requestConfig, getConfig);
+            let {url, resolved, rejected, service} = getConfig;
+            let realUrl = service + url;
+            /**
+             * 统一返回处理方法
+             * @param res
+             */
+            wrapped.onFulfilled = onFulfilled({url: realUrl, resolved, rejected});
+
+            return wrapped.call(function () {
+                return _axios.get(url, axiosConfig);
+            }).catch((error) => {
+                // console.log(error.response.data);
+            });
         }
     }
 };
@@ -108,38 +141,10 @@ let RequestFactory = function ({url, param}, wrapped) {
  * 配置统一_axios
  * @returns {Promise<any>}
  */
-let createRequest = function (onFulfilledConfig) {
-    /**
-     * 请求初始化
-     * @type {Pending}
-     */
-    let wrapped = new Pending({
-        autoReset: 'fulfilled'
-    });
-    let onFulfilled = new onFulfilledFactory(onFulfilledConfig);
-
-    return function (config) {
-        this.default = {
-            service: SERVICE_PROXY,
-            resolved: function (data) {
-                console.log('url:', config.url, '--- Resolved :', data);
-            },
-            rejected: function (response) {
-                console.log('url:', config.url, '--- Rejected :', response);
-            },
-        };
-        config = Object.assign(this.default, config);
-        config = Object.assign(config, {url: config.service + config.url});
-
-        /**
-         * 统一返回处理方法
-         * @param res
-         */
-        wrapped.onFulfilled = onFulfilled(config);
-        return new RequestFactory(config, wrapped)
-    }
-};
+// let createRequest = function (config) {
+//     return new RequestFactory(config)
+// };
 
 module.exports = function (config) {
-    return createRequest(config);
+    return RequestFactory(config);
 };
