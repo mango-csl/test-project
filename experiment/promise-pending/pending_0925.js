@@ -4,6 +4,7 @@
 
 'use strict';
 
+const Wrapped = require('./wrappedPromise');
 const TimeoutError = require('./timeout-error');
 const {mergeOptions} = require('./utils');
 
@@ -46,6 +47,8 @@ class Pending {
         this._isPending = false;
         this._isResolved = false;
         this._isRejected = false;
+        // 'cancel' promise ,do not enter the call(fn)
+        this._cancel = false;
         this._value = undefined;
         this._promise = null;
         this._timer = null;
@@ -108,6 +111,14 @@ class Pending {
     }
 
     /**
+     * Returns true if promise is canceled.
+     * @returns {boolean}
+     */
+    get isCanceled() {
+        return this._cancel;
+    }
+
+    /**
      * Callback called when promise is fulfilled (resolved or rejected).
      *
      * @param {Function} fn
@@ -156,6 +167,7 @@ class Pending {
             this._value = value;
             this._resolve(value);
             this._postFulfill();
+            this._applyAutoReset();
         }
     }
 
@@ -171,6 +183,16 @@ class Pending {
             this._value = value;
             this._reject(value);
             this._postFulfill();
+            this._applyAutoReset();
+        }
+    }
+
+    /**
+     * 'cancel' promise don't enter call(fn)
+     */
+    cancel() {
+        if (!this._cancel) {
+            this._cancel = true;
         }
     }
 
@@ -202,6 +224,7 @@ class Pending {
         this._isPending = false;
         this._isResolved = false;
         this._isRejected = false;
+        this._cancel = false;
         this._value = undefined;
         this._clearTimer();
     }
@@ -215,6 +238,8 @@ class Pending {
                 this._callFn(fn);
             }
         });
+        // wrapped promise
+        new Wrapped(this._promise);
     }
 
     _initTimer() {
@@ -242,7 +267,19 @@ class Pending {
 
     _attachToFnPromise(p) {
         if (p && typeof p.then === 'function') {
-            p.then(value => this.resolve(value), e => this.reject(e));
+            p.then(value => {
+                if (this._cancel) {
+                    this.reject({isCanceled: true});
+                } else {
+                    this.resolve(value);
+                }
+            }, e => {
+                if (e.isCanceled) {
+                    console.info('promise has canceled');
+                } else {
+                    this.reject(e);
+                }
+            });
         }
     }
 
@@ -253,7 +290,8 @@ class Pending {
 
     _postFulfill() {
         this._onFulfilled(this);
-        this._applyAutoReset();
+        // change:break module
+        // this._applyAutoReset();
     }
 
     _applyAutoReset() {
@@ -263,7 +301,7 @@ class Pending {
             this._isResolved && autoReset === AUTO_RESET.RESOLVED,
             this._isRejected && autoReset === AUTO_RESET.REJECTED
         ].some(Boolean);
-        if (needReset) {
+        if (needReset && !this._cancel) {
             this.reset();
         }
     }

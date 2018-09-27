@@ -1,4 +1,4 @@
-const {getInstance} = require('./logger')
+const {getInstance} = require('../../wmsHttpService/logger')
 const axios = require('axios');
 
 let isObject = function (value) {

@@ -1,6 +1,6 @@
 'use strict';
 
-const Pending = require(`${srcPath}/pending`);
+const Pending = require(`../../experiment/promise-pending/pending`);
 
 const noop = () => {
 };
