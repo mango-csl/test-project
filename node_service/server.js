@@ -4,6 +4,7 @@ var fs = require("fs");
 var error_index = true;
 app.post('/user', function (req, res) {
     setTimeout(() => {
+        console.log('visited /user');
         if (error_index) {
             // res.end(data);
             res.status(200).send({
@@ -34,7 +35,8 @@ app.post('/user', function (req, res) {
 
 app.post('/test', function (req, res) {
     setTimeout(() => {
-        res.end({
+        console.log('visited /test');
+        res.status(200).send({
             "msg":"操作成功",
             "code":800000,
             "data":  {

@@ -10,13 +10,16 @@ var source2 = CancelToken.source();
 //         console.log(response.data);
 //     }
 // })
-wmspost = $http.post;
+wmspost = $http.promisePost;
 /**
  * 实际组件内调用
  */
 let user_do = wmspost({
     url: '/user',
-    param: '',
+    param: {
+        name: null,
+        age: 11
+    },
     resolved: function (data) {
         console.log('Resolved1 :', data);
     },
@@ -26,7 +29,7 @@ let user_do = wmspost({
     service: 'http://127.0.0.1:3000'
 }, {
     cancelToken: source1.token
-});
+}).toPromise;
 let postQuery = function () {
     return user_do();
 };
@@ -34,7 +37,7 @@ let postQuery = function () {
  * 实际组件内调用
  */
 let tests = wmspost({
-    url: '/tests',
+    url: '/test',
     param: '',
     resolved: function (data) {
         console.log('Resolved2 :', data);
@@ -45,7 +48,7 @@ let tests = wmspost({
     service: 'http://127.0.0.1:3000'
 }, {
     cancelToken: source2.token
-});
+}).toPromise;
 let postQuery2 = function () {
     return tests();
 };
@@ -70,10 +73,20 @@ let getQuery = function () {
 let index = 0;
 let Interval = setInterval(() => {
     if (index < 31) {
-        postQuery();
-        postQuery2();
-    } else {
-        postQuery2();
+        // postQuery();
+        // postQuery2();
+        Promise.all([postQuery(), postQuery2()]).then(() => {
+            console.log('Promise.all');
+        })
     }
+    // else {
+    //     source1.cancel('中断请求');
+    //     postQuery();
+    //     postQuery2();
+    // }
+    console.log('index = ', index);
     index++;
+    if (index > 50) {
+        clearInterval(Interval);
+    }
 }, 100);

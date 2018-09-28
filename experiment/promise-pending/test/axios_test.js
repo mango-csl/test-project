@@ -26,5 +26,15 @@ axios.get('http://127.0.0.1:3000/getTest', {
 });
 // 取消请求（message 参数是可选的）
 source.cancel('Operation canceled by the user.');
+let index = 0;
+let post = axios.post('http://127.0.0.1:3000/test', {}).then((data) => {
+    console.log(index++);
+});
 
+function f() {
+    post
+}
 
+setInterval(() => {
+    f()
+}, 100);

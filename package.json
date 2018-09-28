@@ -5,6 +5,7 @@
   "main": "src/index.js",
   "scripts": {
     "test": "mocha test/specs/pending.test_2 --require=test/globals.js",
+    "test:pengdings": "mocha test/specs/pendings.test_2 --require=test/globals.js",
     "test-lib": "TEST_LIB=1 npm t"
   },
   "author": "csl <453826887@qq.com>",
