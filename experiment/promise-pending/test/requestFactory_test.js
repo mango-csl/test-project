@@ -10,7 +10,8 @@ var source2 = CancelToken.source();
 //         console.log(response.data);
 //     }
 // })
-wmspost = $http.promisePost;
+let wmspost = $http.post;
+let wmsget = $http.get;
 /**
  * 实际组件内调用
  */
@@ -53,7 +54,7 @@ let postQuery2 = function () {
     return tests();
 };
 let getQuery = function () {
-    return $http.get({
+    return $http.wmsget({
         url: '/getTest',
         resolved: function (data) {
             console.log('Resolved :', data);
@@ -72,13 +73,10 @@ let getQuery = function () {
 
 let index = 0;
 let Interval = setInterval(() => {
-    if (index < 31) {
-        // postQuery();
-        // postQuery2();
-        Promise.all([postQuery(), postQuery2()]).then(() => {
-            console.log('Promise.all');
-        })
-    }
+    // if (index < 31) {
+        postQuery();
+        postQuery2();
+    // }
     // else {
     //     source1.cancel('中断请求');
     //     postQuery();

@@ -1,36 +1,51 @@
 const Pending = require(`../pending`);
+// const {
+//     createAxios,
+//     defaultOnError,
+//     defaultOnResponse,
+//     defaultRequestCall,
+//     defaultMessage
+// } = require('../wrappedPromise/config');
+
+const createAxios = require('./unit/axiosFactory');
 const {
-    createAxios,
     defaultOnError,
     defaultOnResponse,
     defaultRequestCall,
     defaultMessage
-} = require('../wrappedPromise/config');
-
+} = require('./unit/default');
 
 let DEFAULT_CONFIG = {
     url: 'empty',
     param: {},
     service: '/djwmsservice/',
     resolved: function (data) {
-        console.log('url:', config.url, '--- Resolved :', data);
+        console.log('Resolved :', data);
     },
     rejected: function (response) {
-        console.log('url:', config.url, '--- Rejected :', response);
+        console.log('Rejected :', response);
     },
 };
 
 /**
  * 构建统一回调处理模块
- * @param config
- * @returns {Function}
+ * @param onResponse
+ * @param onError
+ * @param message
+ * @param requestCall
+ * @returns {function({resolved?: *, rejected?: *, url?: *}): Function}
  */
 let onFulfilledFactory = function ({
-                                       onResponse = defaultOnResponse,
-                                       onError = defaultOnError,
-                                       message = defaultMessage,
-                                       requestCall = defaultRequestCall
-                                   }) {
+                                       onResponse,
+                                       onError,
+                                       message,
+                                       requestCall,
+                                   } = {
+    onResponse: defaultOnResponse,
+    onError: defaultOnError,
+    message: defaultMessage,
+    requestCall: defaultRequestCall
+}) {
     return function ({resolved, rejected, url}) {
         let count = 0;
         return function (res) {
@@ -67,22 +82,14 @@ let onFulfilledFactory = function ({
         }
     };
 };
-/**
- * RequestFactory
- * @param url --- service url
- * @param param --- service param
- * @param wrapped --- wrapped axios
- * @returns {{post: *, get: *, cancel: cancel}}
- * @constructor
- */
 let RequestFactory = function (onFulfilledConfig) {
     let requestConfig = Object.assign(DEFAULT_CONFIG, {service: onFulfilledConfig.service || ''});
 
-    let onFulfilled = new onFulfilledFactory(onFulfilledConfig);
-
+    let onFulfilled = new onFulfilledFactory();
+    // onFulfilledConfig
     let _axios = createAxios();
 
-    let Wrapped = function (postConfig, axiosConfig) {
+    let Wrapped = function (postConfig, axiosConfig, method) {
         postConfig = Object.assign(requestConfig, postConfig);
         let {url, param, resolved, rejected, service} = postConfig;
         let realUrl = service + url;
@@ -92,51 +99,32 @@ let RequestFactory = function (onFulfilledConfig) {
         });
         wrapped.onFulfilled = onFulfilled({url: realUrl, resolved, rejected});
         let createPromise = function () {
-           return wrapped.call(function () {
-                console.log('call url = ', realUrl);
-                return _axios.post(realUrl, param, axiosConfig);
-            }).catch();
+            //To Do 完善封装 目前只有post方法
+            return wrapped.call(function () {
+                if (method === 'post') {
+                    return _axios[method](realUrl, param, axiosConfig);
+                } else {
+                    return _axios[method](realUrl, axiosConfig);
+                }
+            });
         };
         return {
-            toPromise:createPromise
+            toPromise: createPromise,
         };
     };
     return {
-        promisePost: function (postConfig = {}, axiosConfig = {}) {
-            return new Wrapped(postConfig, axiosConfig)
-        },
         post: function (postConfig = {}, axiosConfig = {}) {
-            return (function (postConfig, axiosConfig) {
-                postConfig = Object.assign(requestConfig, postConfig);
-                let {url, param, resolved, rejected, service} = postConfig;
-                let realUrl = service + url;
-                let wrapped = new Pending({
-                    autoReset: 'fulfilled'
-                });
-                wrapped.onFulfilled = onFulfilled({url: realUrl, resolved, rejected});
-                return wrapped.call(function () {
-                    return _axios.post(realUrl, param, axiosConfig);
-                }).catch((error) => {
-                    // console.log(error.response.data);
-                });
-            })(postConfig, axiosConfig)
+            return Wrapped(postConfig, axiosConfig, 'post')
         },
-        get: function (getConfig = {}, axiosConfig = {}) {
-            getConfig = Object.assign(requestConfig, getConfig);
-            let {url, resolved, rejected, service} = getConfig;
-            let realUrl = service + url;
-            /**
-             * 统一返回处理方法
-             * @param res
-             */
-            wrapped.onFulfilled = onFulfilled({url: realUrl, resolved, rejected});
-
-            return wrapped.call(function () {
-                return _axios.get(url, axiosConfig);
-            }).catch((error) => {
-                // console.log(error.response.data);
-            });
+        get: function (postConfig = {}, axiosConfig = {}) {
+            return Wrapped(postConfig, axiosConfig, 'get')
         }
+        /**
+         * 暂时没有好的解决方案
+         */
+        // all: function () {
+        //
+        // }
     }
 };
 /**
