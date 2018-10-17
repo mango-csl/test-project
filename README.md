@@ -1,5 +1,6 @@
 ## 运行该案例
 ```
+test
 npm install
 npm start
 ```
