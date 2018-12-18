@@ -26,10 +26,10 @@ const LoopParam = function (handleParam, param) {
     for (let i of keys) {
         if (Object.prototype.toString.call(param[i]) === '[object Object]') {
             handleParam[i] = {};
-            loopParam(handleParam[i], param[i]);
+            LoopParam(handleParam[i], param[i]);
         } else if (Object.prototype.toString.call(param[i]) === '[object Array]') {
             handleParam[i] = [];
-            loopParam(handleParam[i], param[i]);
+            LoopParam(handleParam[i], param[i]);
         } else if (param[i] !== '') {
             handleParam[i] = param[i];
         }

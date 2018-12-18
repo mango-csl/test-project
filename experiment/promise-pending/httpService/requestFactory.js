@@ -7,23 +7,24 @@ let DEFAULT_CONFIG = {
   url: 'empty',
   param: {},
   service: '/djwmsservice/',
-  resolved: function (data) {
+  resolved: function(data) {
     console.log('Resolved :', data);
   },
-  rejected: function (response) {
+  rejected: function(response) {
     console.log('Rejected :', response);
   }
 };
 
+let RequestFactory = function(onFulfilledConfig) {
+  let requestConfig = Object.assign(DEFAULT_CONFIG, {
+    service: onFulfilledConfig.service || ''
+  });
 
-let RequestFactory = function (onFulfilledConfig) {
-  let requestConfig = Object.assign(DEFAULT_CONFIG, { service: onFulfilledConfig.service || '' });
-
-  let _onFulfilled = new OnFulfilled();
+  let _onFulfilled = new OnFulfilled(onFulfilledConfig);
   // onFulfilledConfig
   let _axios = createAxios();
 
-  let Wrapped = function (postConfig, axiosConfig, method) {
+  let Wrapped = function(postConfig, axiosConfig, method) {
     postConfig = Object.assign(requestConfig, postConfig);
     let { url, param, resolved, rejected, service } = postConfig;
     let realUrl = service + url;
@@ -31,10 +32,13 @@ let RequestFactory = function (onFulfilledConfig) {
     let wrapped = new Pending({
       autoReset: 'fulfilled'
     });
-    wrapped.onFulfilled = _onFulfilled.call({ url: realUrl, resolved, rejected });
-    let createPromise = function () {
-      //To Do 完善封装 目前只有post方法
-      return wrapped.call(function () {
+    wrapped.onFulfilled = _onFulfilled.call({
+      url: realUrl,
+      resolved,
+      rejected
+    });
+    let createPromise = function() {
+      return wrapped.call(function() {
         if (method === 'post') {
           return _axios[method](realUrl, param, axiosConfig);
         } else {
@@ -47,10 +51,10 @@ let RequestFactory = function (onFulfilledConfig) {
     };
   };
   return {
-    post: function (postConfig = {}, axiosConfig = {}) {
+    post: function(postConfig = {}, axiosConfig = {}) {
       return Wrapped(postConfig, axiosConfig, 'post');
     },
-    get: function (postConfig = {}, axiosConfig = {}) {
+    get: function(postConfig = {}, axiosConfig = {}) {
       return Wrapped(postConfig, axiosConfig, 'get');
     }
     /**
@@ -69,6 +73,6 @@ let RequestFactory = function (onFulfilledConfig) {
 //     return new RequestFactory(config)
 // };
 
-module.exports = function (config) {
+module.exports = function(config) {
   return RequestFactory(config);
 };
