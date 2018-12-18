@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <title>Title</title>
+</head>
+<body>
+<div class="layout-box">
+  <div class="layout-box" style="min-height: 100vh">
+    <section class="layout-footer"></section>
+    <section class="layout-router-content">
+      <div class="img-content">
+        <img src="./static/img/index.gif" class="gif-img" alt="index">
+      </div>
+    </section>
+    <section class="layout-footer"></section>
+  </div>
+</div>
+</body>
+<style>
+  body, h1, h2, h3, h4, h5, h6, ul, ol, p {
+    padding: 0;
+    margin: 0;
+  }
+
+  html {
+    height: 100%;
+    overflow-y: scroll;
+  }
+
+  :root {
+    overflow-x: hidden;
+    overflow-y: auto;
+  }
+
+  :root body {
+    padding-right: 0 !important;
+  }
+
+  body {
+    width: 100vw;
+    height: 100%;
+    font-family: 'MicrosoftYaHei';
+    background: #f4f4f4;
+  }
+
+  .layout-box {
+    display: flex;
+    min-width: 1280px;
+    min-height: 0;
+    box-sizing: border-box;
+    flex-direction: column;
+    flex: auto;
+  }
+
+  .layout-router-content {
+    margin: 0 20px;
+    box-sizing: border-box;
+    flex: auto;
+    min-height: 0;
+    position: relative;
+  }
+
+  .img-content {
+    display: flex;
+    height: 100%;
+    width: 100%;
+    position: absolute;
+    overflow: hidden;
+  }
+
+  .gif-img {
+    flex: 1;
+    position: relative;
+    height: 100%;
+  }
+
+  .layout-footer {
+    background: #001529;
+    padding: 0 50px;
+    height: 64px;
+    line-height: 64px;
+    /*flex: 0 0 auto;*/
+    color: #929292;
+    text-align: center;
+  }
+</style>
+</html>

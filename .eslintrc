@@ -21,6 +21,6 @@
     // "max-len": ["error", {"code" : 120, "ignoreUrls": true}],
     // "max-lines": ["error", {"max": 160, "skipComments": true, "skipBlankLines": true}],
     "semi": ["error", "always"],
-    "space-before-function-paren": ["error", {"anonymous": "always", "named": "never", "asyncArrow": "always"}]
+    // "space-before-function-paren": ["error", {"anonymous": "always", "named": "never", "asyncArrow": "always"}]
   }
 }
