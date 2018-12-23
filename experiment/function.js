@@ -64,3 +64,41 @@ sub2.hasListen('demo_test');
 sub1.trigger('demo_test');
 sub2.name;
 sub1.name;
+
+
+// console.error = (function(old) {
+//     return function error() {
+//         errors.textContent += Array.prototype.slice.call(arguments).join(' ') + '\n';
+//         errors.style.display = '';
+//         old.apply(this, arguments);
+//     }
+// })(console.error);
+//
+// console.error('123123123');
+
+// An Immediately Invoked Function Expressions (IIFE) is a function that is called directly after the function is loaded into the browser’s compiler.
+// The way to identify an IIFE is by locating the extra left and right parenthesis at the end of the function’s declaration.
+// Error (https://en.wikipedia.org/wiki/Immediately-invoked_function_expression)
+/*
+​function foo() {
+    console.log('Hello Foo');
+}();
+*/
+
+(function foo() {
+    console.log("Hello Foo");
+}());
+
+(function food() {
+    console.log("Hello Food");
+})();
+
+let name = 'window';
+
+let IIFE_fn = (function(name) {
+    return function error() {
+        console.log('IIFE_fn ----- name',name);
+    }
+})(name);
+
+IIFE_fn();
