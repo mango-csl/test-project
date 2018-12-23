@@ -26,8 +26,7 @@ npm install --save-dev babel-preset-env babel-cli
 ```
 ### commit test
 
-reset commit
-commit a
-commit b
-commit c
-commit d
+commit 1
+commit 2
+commit 3
+commit 4
