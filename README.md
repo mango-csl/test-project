@@ -1,5 +1,6 @@
 ## 运行该案例
 ```
+test
 npm install
 npm start
 ```
@@ -23,3 +24,9 @@ npm install --save-dev babel-preset-env babel-cli
     "presets": ["env"]
 }
 ```
+### commit rebase
+rebase 1
+rebase 2
+rebase 3
+rebase 4
+rebase 5
