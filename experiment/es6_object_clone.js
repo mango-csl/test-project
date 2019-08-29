@@ -1,4 +1,4 @@
-function demo_test({timeout}) {
+function es6_object_clone({timeout}) {
     let twemp = {timeout};
     let twemp2 = {...twemp};
     twemp.timeout = '456';
@@ -7,4 +7,4 @@ function demo_test({timeout}) {
     console.log('twemp2', twemp2);
 }
 
-demo_test({timeout: 123123, name: '12313'});
+es6_object_clone({timeout: 123123, name: '12313'});

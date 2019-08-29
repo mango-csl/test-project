@@ -10,7 +10,7 @@ npm start
 npm init
 ```
 ### 安装
-通过 npm: 
+通过 npm:
 ```
 npm install --save-dev babel-preset-env babel-cli
 ```
@@ -27,3 +27,4 @@ npm install --save-dev babel-preset-env babel-cli
 revert 1
 revert 2
 revert 3
+revert 4

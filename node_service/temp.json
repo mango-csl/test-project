@@ -1,0 +1,27 @@
+{
+  "msg": "",
+  "code": 200,
+  "data": [
+    {
+      "path": "manage",
+      "icon": "el-icon-tickets",
+      "title": "运营管理",
+      "children": [
+        {
+          "path": "user",
+          "icon": "el-icon-tickets",
+          "title": "用户管理",
+          "children": [
+            {
+              "path": "user",
+              "icon": "el-icon-tickets",
+              "title": "用户管理",
+              "children": [],
+              "hidden": true
+            }
+          ]
+        }
+      ]
+    }]
+}
+

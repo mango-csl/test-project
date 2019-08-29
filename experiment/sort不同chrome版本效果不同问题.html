@@ -1,0 +1,66 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Title</title>
+</head>
+<body>
+
+</body>
+<script>
+    let source = [{
+        "path": "/org/service/userManage",
+        "meta": {"title": "人员管理"},
+        "name": "orgServiceUserManage"
+    }, {
+        "path": "/common/center/personalCenter",
+        "meta": {"title": "个人信息"},
+        "name": "commonCenterPersonalCenter"
+    }, {"path": "/org/service/*", "name": "orgService*"}, {
+        "path": "/org/service/orgChart",
+        "meta": {"title": "组织架构图"},
+        "name": "orgServiceOrgChart"
+    }, {
+        "path": "/org/service/permissionPackageManage",
+        "meta": {"title": "权限包管理"},
+        "name": "orgServicePermissionPackageManage"
+    }, {
+        "path": "/org/service/roleManage",
+        "meta": {"title": "角色管理"},
+        "name": "orgServiceRoleManage"
+    }, {"path": "/common/center/*", "name": "commonCenter*"}, {
+        "path": "/org/service/orgManage",
+        "meta": {"title": "组织管理"},
+        "name": "orgServiceOrgManage"
+    }, {
+        "path": "/org/service/addRole",
+        "meta": {"title": "新增角色"},
+        "name": "orgServiceAddRole"
+    }, {"path": "/common/*", "name": "common*"}, {"path": "/org/*", "name": "org*"}, {
+        "path": "/*",
+        "name": "*"
+    }];
+
+    // source.sort((a, b) => b.path.split('/').length - a.path.split('/').length);
+    let result = source.sort(function (a, b) {
+        const BPathSplit = b.path.split('/');
+        const APathSplit = a.path.split('/');
+        let splitLength = BPathSplit.length - APathSplit.length;
+        if (splitLength === 0) {
+            let nameResult = APathSplit[1].localeCompare(BPathSplit[1]);
+            if (nameResult === 0) {
+                const _indexOf = APathSplit.indexOf('*') - BPathSplit.indexOf('*');
+                return _indexOf;
+            }
+            return nameResult;
+        }
+        return splitLength;
+    });
+
+    console.log(result)
+
+
+    encodeURIComponent('rpt-index/customized-index.html?index=1&v=2019032501')
+    console.log(decodeURIComponent('http%3A%2F%2Fbitest.cpsol.net%2Fdata-entry%2Fdata-entry-index.html%3Fv%3D2019032501'))
+</script>
+</html>

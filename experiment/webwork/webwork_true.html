@@ -1,0 +1,31 @@
+<!DOCTYPE HTML>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>webworkers--calculate</title>
+</head>
+<body>
+<input id="num" name="num" type="text"/>
+<button onclick = "calculate()">计算</button><br />
+<div id="result" style="color:red;"></div>
+<div id="time" style="color:red;"></div>
+<script type="text/javascript" src="calculate.js"></script>
+<script type="text/javascript">
+    var worker = new Worker("calculate.js");
+    var data1 =0;
+    var data2 =0;
+    worker.onmessage = function(event){
+        var data = event.data;
+        data2 = new Date().getTime();
+        document.getElementById("result").innerHTML ="计算结果："+data;
+        document.getElementById("time").innerHTML ="workers 耗时："+ (data2 - data1)+"ms";
+    };
+    function calculate(){
+        data1 = new Date().getTime();
+        var num = document.getElementById("num").value;
+        var val = parseInt(num,10);
+        worker.postMessage(val);
+    }
+</script>
+</body>
+</html>

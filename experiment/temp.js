@@ -1,0 +1,62 @@
+function getService(config) {
+    const defaultService = config && config.service || 'a';
+    console.log('config = ', config, ' defaultService = ', defaultService);
+}
+
+getService(null);
+getService({service: null});
+let dependencies = {
+    "art-template": "^4.13.2",
+    "body-parser": "^1.18.3",
+    "cookie-parser": "^1.4.3",
+    "cors": "^2.8.5",
+    "debug": "~2.6.9",
+    "express": "^4.16.4",
+    "http-errors": "~1.6.2",
+    "http-proxy": "^1.17.0",
+    "morgan": "^1.9.1",
+    "autoprefixer": "^7.1.2",
+    "autoprefixer-loader": "^3.2.0",
+    "babel-core": "^6.26.3",
+    "babel-eslint": "^8.2.1",
+    "babel-loader": "^7.1.5",
+    "babel-plugin-transform-runtime": "^6.23.0",
+    "babel-polyfill": "^6.26.0",
+    "babel-preset-env": "^1.7.0",
+    "babel-preset-es2015": "^6.24.1",
+    "babel-preset-es2015-loose": "^8.0.0",
+    "babel-preset-stage-0": "^6.24.1",
+    "browser-sync": "^2.26.3",
+    "clean-webpack-plugin": "^1.0.1",
+    "cross-env": "^3.0.0",
+    "css-loader": "^0.23.1",
+    "eslint": "^4.2.0",
+    "eslint-config-djcps": "^0.0.4",
+    "eslint-friendly-formatter": "^3.0.0",
+    "eslint-loader": "^1.9.0",
+    "eslint-plugin-html": "^4.0.2",
+    "eslint-plugin-import": "^2.7.0",
+    "eslint-plugin-json": "^1.2.0",
+    "eslint-plugin-node": "^5.2.0",
+    "eslint-plugin-promise": "^3.4.0",
+    "express-art-template": "^1.0.1",
+    "extract-text-webpack-plugin": "^3.0.0",
+    "file-loader": "^0.8.5",
+    "glob": "^7.0.0",
+    "html-loader": "^0.4.3",
+    "html-webpack-plugin": "^2.29.0",
+    "http-proxy-middleware": "^0.19.1",
+    "jquery": "^3.3.1",
+    "less": "^3.9.0",
+    "less-loader": "^4.1.0",
+    "resolve-url-loader": "^3.0.1",
+    "shelljs": "^0.8.3",
+    "style-loader": "^0.13.0",
+    "url-loader": "^1.1.2",
+    "webpack": "^3.12.0",
+    "webpack-dev-middleware": "^2.0.6",
+    "webpack-dev-server": "^2.11.3",
+    "webpack-hot-middleware": "^2.24.3",
+    "webpack-merge": "^4.2.1"
+};
+console.log(Object.keys(dependencies).join(' '));

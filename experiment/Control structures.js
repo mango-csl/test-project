@@ -12,5 +12,12 @@ switch (1 + 3) {
     default:
         controlLog('neverhappens();');
 }
-
-const aNumber = Number(window.prompt("Type a number", ""));
+let tem_fn = function () {
+    return '123';
+};
+sysLog('fn1 === fn2', function () {
+    return '123';
+} === function () {
+    return '123';
+})
+// const aNumber = Number(window.prompt("Type a number", ""));
